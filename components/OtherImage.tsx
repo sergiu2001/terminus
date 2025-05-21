@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Image, View } from 'react-native';
 import { downloadOtherImage } from '@/services/firebaseStorageService';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import FastImage from 'react-native-fast-image';
 
 interface OtherImageProps {
@@ -31,7 +31,7 @@ const OtherImage: React.FC<OtherImageProps> = ({ otherName }) => {
     return (
         <View style={themeStyles.logoContainer}>
             {!isLoading && otherUrl ? (
-                <FastImage
+                <Image
                     source={{ uri: otherUrl }}
                     style={themeStyles.logo}
                 />

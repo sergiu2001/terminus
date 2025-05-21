@@ -10,9 +10,9 @@ import { useScanlineAnimation } from '@/hooks/useScanlineAnimation';
 import { useFlickerAnimation } from '@/hooks/useFlickerAnimation';
 import { router } from 'expo-router';
 import Avatar from '@/components/Avatar';
-import { useProfile } from '@/components/ProfileContext';
+import { useProfile } from '@/context/ProfileContext';
 import ProfileData from '@/components/ProfileDataContainer';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 
 const ProfileScreen: React.FC = () => {
@@ -77,7 +77,7 @@ const ProfileScreen: React.FC = () => {
                         <View style={themeStyles.profileContainer}>
                             <ProfileData profile={profile}/>
                             <Avatar
-                                avatarName={profile?.avatar || 'avatar1F'}
+                                avatarName={profile?.avatar || 'mustacheF'}
                             />
                         </View>
                         <LogDisplay style={themeStyles.logContainer} logs={logs} />

@@ -9,7 +9,7 @@ import { useScanlineAnimation } from '@/hooks/useScanlineAnimation';
 import { useFlickerAnimation } from '@/hooks/useFlickerAnimation';
 import { router } from 'expo-router';
 import StoreList from '@/components/StoreList';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 const StoreScreen: React.FC = () => {
     const { themeStyles, setTheme } = useTheme();

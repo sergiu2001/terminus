@@ -1,6 +1,8 @@
 // models/Profile.ts
 
 import {Reputation} from './Reputation';
+import { ThemeItem } from './ThemeItem';
+import { StrategistItem } from './StrategistItem';
 
 export class Profile {
     alias: string;
@@ -13,6 +15,9 @@ export class Profile {
     completedContracts: number;
     failedContracts: number;
     avatar: string;
+    theme: string;
+    themes: ThemeItem[];
+    strategists: StrategistItem[];
 
     constructor(
         alias: string,
@@ -23,7 +28,10 @@ export class Profile {
         totalContracts: number = 0,
         completedContracts: number = 0,
         failedContracts: number = 0,
-        avatar: string,
+        avatar: string = '',
+        theme: string = '',
+        themes: ThemeItem[] = [],
+        strategists: StrategistItem[] = []
     ) {
         this.alias = alias;
         this.reputation = this.calculateReputation();
@@ -35,6 +43,9 @@ export class Profile {
         this.completedContracts = completedContracts;
         this.failedContracts = failedContracts;
         this.avatar = avatar;
+        this.theme = theme;
+        this.themes = themes;
+        this.strategists = strategists;
     }
 
     updateReputation(newRep: string): void {
@@ -72,6 +83,10 @@ export class Profile {
 
     updateAvatar(newAvatar: string): void {
         this.avatar = newAvatar;
+    }
+
+    updateTheme(newTheme: string): void {
+        this.theme = newTheme;
     }
 
     private calculateReputation(): string {

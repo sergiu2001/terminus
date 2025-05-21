@@ -66,6 +66,7 @@ export const getAuthFromSecureStore = async () => {
 export const getProfileFromAsyncStorage = async () => {
     try {
         const userData = await AsyncStorage.getItem('userData');
+        console.log('userData', userData);
         return userData ? JSON.parse(userData) : null;
     } catch (error) {
         console.log('Error getting profile data from async storage', error);
@@ -81,41 +82,4 @@ export const cleanUserData = async () => {
         console.log('Error cleaning user data', error);
     }
 }
-
-export const checkUserCache = async () => {
-    try {
-        const userAuth = await SecureStore.getItemAsync('userAuth');
-        const parsedAuth = userAuth ? JSON.parse(userAuth) : null;
-
-        const userData = await AsyncStorage.getItem('userData');
-        const parsedData = userData ? JSON.parse(userData) : null;
-
-        if (parsedAuth && parsedData) {
-            // Initialize Firebase auth state
-            await auth.signInWithCustomToken(parsedAuth.token);
-            console.log('Auto-login successful.');
-            return parsedData;
-        } else {
-            console.log('No cached user data found. Redirecting to login...');
-            return null;
-        }
-    } catch (error) {
-        console.error('Error during user cache check:', error);
-        return null;
-    }
-};
-
-export const refreshAuthToken = async () => {
-    try {
-        const user = auth.currentUser;
-        if (user) {
-            const token = await user.getIdToken(true); // Force refresh the token
-            await saveAuthToSecureStore({ token });
-            console.log('Token refreshed successfully.');
-        }
-    } catch (error) {
-        console.error('Error refreshing token:', error);
-        await cleanUserData();
-    }
-};
 

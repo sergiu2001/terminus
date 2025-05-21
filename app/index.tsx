@@ -1,6 +1,6 @@
 // app/HomeScreen.tsx
 import React, { useState } from 'react';
-import { BackHandler, View, Image } from 'react-native';
+import { BackHandler, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FlickerOverlay from '@/components/FlickerOverlay';
 import ScanlineOverlay from '@/components/ScanlineOverlay';
@@ -9,8 +9,9 @@ import CommandInput from '@/components/CommandInput';
 import { useScanlineAnimation } from '@/hooks/useScanlineAnimation';
 import { useFlickerAnimation } from '@/hooks/useFlickerAnimation';
 import { router } from 'expo-router';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import OtherImage from '@/components/OtherImage';
+import { logOut } from '@/services/firebaseAuthService';
 
 const HomeScreen: React.FC = () => {
     const { themeStyles, setTheme } = useTheme();
@@ -29,7 +30,7 @@ const HomeScreen: React.FC = () => {
         switch (command) {
             case 'help':
                 newLogs.push('This is the list of available commands*!*');
-                newLogs.push('\t'.repeat(3) + '~ SCAN\n' + '\t'.repeat(3) + '~ PROFILE\n' + '\t'.repeat(3) + '~ SYS\n' + '\t'.repeat(3) + '~ CLC\n' + '\t'.repeat(3) + '~ EXIT');
+                newLogs.push('\t'.repeat(3) + '~ SCAN\n' + '\t'.repeat(3) + '~ PROFILE\n' + '\t'.repeat(3) + '~ SYS\n' + '\t'.repeat(3) + '~ LOGOUT\n' + '\t'.repeat(3) + '~ CLC\n' + '\t'.repeat(3) + '~ EXIT');
                 break;
             case 'scan':
                 newLogs.push('Scanning for contracts...');
@@ -47,6 +48,10 @@ const HomeScreen: React.FC = () => {
                 newLogs.push('1. Adjust Screen Brightness');
                 newLogs.push('2. Configure Audio');
                 newLogs.push('3. Update Terminal Software');
+                break;
+            case 'logout':
+                newLogs.push('Logging out...');
+                logOut();
                 break;
             case 'clc':
                 router.replace('./');

@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextInput, View, TouchableHighlight } from 'react-native';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 interface GameInputProps {
     input: string;
@@ -19,7 +19,7 @@ const GameInput: React.FC<GameInputProps> = ({ input, setInput, handleCommand, h
                 onChangeText={setInput}
                 onSubmitEditing={() => handleCommand(input)}
                 placeholder='>_'
-                placeholderTextColor="#4CAF50"
+                placeholderTextColor={themeStyles.gameInput.color}
                 autoCorrect={false}
                 autoCapitalize="none"
             />

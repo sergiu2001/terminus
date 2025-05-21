@@ -11,7 +11,7 @@ import { useFlickerAnimation } from '@/hooks/useFlickerAnimation';
 import { logIn, signUp } from '@/services/firebaseAuthService';
 import { createUserProfile } from '@/services/firebaseFirestoreService';
 import { FirebaseError } from 'firebase/app';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 
 const AuthScreen: React.FC = () => {

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Animated } from 'react-native';
 import Svg, { Defs, Rect, Pattern } from 'react-native-svg';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 interface FlickerOverlayProps {
     flickerAnim: Animated.Value;

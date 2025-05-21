@@ -1,50 +1,92 @@
-# Welcome to your Expo app 👋
+# Terminus: Codex - Cyberpunk Terminal Hacking Simulator
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Introduction
 
-## Get started
+Terminus: Codex is an immersive cyberpunk terminal hacking simulator that puts you in the role of a cyber operative in a dystopian future. Complete hacking contracts, increase your reputation, unlock new avatars and themes, and climb the ranks of the digital underground.
 
-1. Install dependencies
+The application features a retro terminal UI aesthetic with scanlines, flickering effects, and a command-line interface that brings the cyberpunk experience to life.
 
-   ```bash
-   npm install
-   ```
+## Features
 
-2. Start the app
+- **Authentic Terminal Experience**: Complete with flickering effects, scanlines, and retro CRT styling
+- **Contract-based Gameplay**: Accept and complete hacking contracts by solving tasks
+- **Progression System**: Earn XP and reputation to unlock new ranks and titles
+- **Currency System**: Earn "trojans" as in-game currency to purchase upgrades
+- **Customization**: Unlock and select different themes and strategist avatars
+- **Secure Authentication**: Firebase-powered authentication and secure data storage
+- **Cross-Platform**: Built with React Native and Expo for iOS, Android, and web support
 
-   ```bash
-    npx expo start
-   ```
+## Technologies
 
-In the output, you'll find options to open the app in a
+- **Frontend**: React Native, Expo
+- **State Management**: React Context API
+- **Authentication**: Firebase Authentication
+- **Database**: Firebase Firestore
+- **Storage**: Firebase Storage
+- **UI**: Custom terminal-inspired components
+- **Navigation**: Expo Router
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Project Structure
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+terminus-codex/
+├── app/                 # Expo Router screens
+│   ├── auth.tsx         # Authentication screen
+│   ├── game.tsx         # Main gameplay screen
+│   ├── index.tsx        # Home screen
+│   ├── profile.tsx      # User profile screen
+│   ├── store.tsx        # Store for purchasing items
+│   └── _layout.tsx      # App layout and navigation setup
+├── assets/              # Static assets
+│   ├── fonts/           # Custom fonts
+│   ├── images/          # Images and icons
+│   └── themes/          # Theme configurations
+├── components/          # Reusable UI components
+│   ├── Avatar.tsx       # User avatar component
+│   ├── CommandInput.tsx # Terminal command input
+│   ├── GameDisplay.tsx  # Game output display
+│   ├── LogDisplay.tsx   # Terminal log display
+│   └── ...              # Other components
+├── context/             # React Context providers
+│   ├── ProfileContext.tsx # User profile data
+│   └── ThemeContext.tsx   # Theme management
+├── hooks/               # Custom React hooks
+│   ├── useAuthListener.ts # Firebase auth state
+│   ├── useScanlineAnimation.ts # CRT effects
+│   └── ...              # Other hooks
+├── models/              # Data models and classes
+│   ├── Contract.ts      # Game contract structure
+│   ├── Profile.ts       # User profile model
+│   ├── Task.ts          # Contract task model
+│   └── ...              # Other models
+└── services/            # API and service layer
+    ├── firebaseAuthService.ts     # Auth functions
+    ├── firebaseFirestoreService.ts # Database functions
+    └── firebaseStorageService.ts   # Storage functions
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Core Commands
 
-## Learn more
+The Terminus terminal recognizes the following commands:
 
-To learn more about developing your project with Expo, look at the following resources:
+### Main Terminal
+- `HELP` - View available commands
+- `SCAN` - Search for new contracts
+- `PROFILE` - View your operative profile
+- `STORE` - Access the avatar and theme store
+- `SYS` - Access system settings
+- `LOGOUT` - Log out of your account
+- `CLC` - Clear the screen
+- `EXIT` - Exit the application
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Rank System
 
-## Join the community
+Gain XP to increase your operative's reputation and unlock new ranks:
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Rank | Title | Required XP |
+|------|-------|------------|
+| 1 | Nullus | 0 |
+| 2 | Novitiate | 250 |
+| 3 | Thrall | 500 |
+| ... | ... | ... |
+| 30 | Imperator | 100,000 |

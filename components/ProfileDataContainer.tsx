@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Profile } from '@/models/Profile';
 import ProfileData from './ProfileData';
-import { useTheme } from './ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 interface ProfileDataContainerProps {
     profile: Profile | null;

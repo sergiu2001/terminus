@@ -1,7 +1,7 @@
 // src/components/CommandInput.tsx
 import React from 'react';
 import { TextInput } from 'react-native';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 interface CommandInputProps {
     input: string;
@@ -18,7 +18,7 @@ const CommandInput: React.FC<CommandInputProps> = ({ input, setInput, handleComm
                 onChangeText={setInput}
                 onSubmitEditing={() => handleCommand(input)}
                 placeholder=">_"
-                placeholderTextColor="#4CAF50"
+                placeholderTextColor={themeStyles.input.color}
                 autoCorrect={false}
                 autoCapitalize="none"
             />

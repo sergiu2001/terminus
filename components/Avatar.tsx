@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Image, View } from 'react-native';
 import { downloadAvatarImage } from '@/services/firebaseStorageService';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import FastImage from 'react-native-fast-image';
 
 interface AvatarProps {
@@ -31,7 +31,7 @@ const Avatar: React.FC<AvatarProps> = ({ avatarName }) => {
     return (
         <View>
             {!isLoading && avatarUrl ? (
-                <FastImage
+                <Image
                     source={{ uri: avatarUrl}}
                     style={themeStyles.avatar}
                 />

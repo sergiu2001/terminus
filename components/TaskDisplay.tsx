@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { Contract } from '@/models/Contract';
 import { Task } from '@/models/Task';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 interface TaskDisplayProps {
     contract: Contract;

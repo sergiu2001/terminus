@@ -2,7 +2,7 @@
 import React from 'react';
 import { Animated, Dimensions } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 interface ScanlineOverlayProps {
     scanlineAnim: Animated.Value;

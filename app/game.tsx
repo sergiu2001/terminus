@@ -12,7 +12,7 @@ import { router } from 'expo-router';
 import { Contract } from '@/models/Contract';
 import { Difficulty } from '@/models/Difficulty';
 import TaskDisplay from '@/components/TaskDisplay';
-import { useTheme } from '@/components/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 const GameScreen: React.FC = () => {
     const { themeStyles, setTheme } = useTheme();
