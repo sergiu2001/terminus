@@ -1,29 +1,61 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import * as SplashScreen from 'expo-splash-screen';
+import React, { useEffect, useState } from 'react';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { Provider, useSelector } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistor, RootState, store } from '@/game/session/store';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function AppNavigator() {
+  const session = useSelector((state: RootState) => state.session.data);
+  const [initialRoute, setInitialRoute] = useState<string | null>(null);
+  
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
+  useEffect(() => {
+    if (loaded) {
+      if (session && session.status === 'active') {
+        setInitialRoute('game');
+      } else {
+        setInitialRoute('index');
+      }
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, session]);
+
+  if (!loaded || !initialRoute) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+    <KeyboardProvider>
+      <Stack
+        initialRouteName={initialRoute}
+        screenOptions={{
+          headerShown: false,
+          navigationBarHidden: true,
+          statusBarHidden: true,
+          keyboardHandlingEnabled: true,
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="game" />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </KeyboardProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <Provider store={store}>
+      <PersistGate persistor={persistor}>
+        <AppNavigator />
+      </PersistGate>
+    </Provider>
   );
 }
