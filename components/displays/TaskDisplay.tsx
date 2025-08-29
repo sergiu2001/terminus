@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import { Contract } from '@/models/Contract';
-import { Task } from '@/models/Task';
 import { styleCSS } from "@/assets/styles";
+import { Contract } from '@/models/Contract';
+import { Task } from '@/models/tasks/Task';
+import React from 'react';
+import { ScrollView, Text, View } from 'react-native';
 
 interface TaskDisplayProps {
     contract: Contract;

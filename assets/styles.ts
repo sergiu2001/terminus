@@ -36,8 +36,6 @@ export const styleCSS = StyleSheet.create({
     avatarName: {
         color: '#00FF00',
         fontSize: 19,
-        alignSelf: 'center',
-        marginLeft: 35,
     },
     taskText: {
         color: '#FFFFFF',
@@ -142,23 +140,7 @@ export const styleCSS = StyleSheet.create({
         fontSize: 17,
         zIndex: 3
     },
-    gameInputContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'stretch',
-        height: 50,
-    },
-    gameInput: {
-        flex: 1,
-        borderColor: '#00B00099',
-        borderWidth: 1,
-        color: '#00B00099',
-        paddingHorizontal: 10,
-        backgroundColor: '#000000',
-        borderRadius: 3,
-        fontSize: 21,
-        zIndex: 3,
-    },
+
     gameInputButton: {
         marginLeft: 5,
         width: 50,
@@ -173,24 +155,26 @@ export const styleCSS = StyleSheet.create({
 
     // Profiles & Avatars
     profileContainer: {
-        flex: 1,
-        flexDirection: 'row',
+        flexDirection: 'column',
+        padding: 5,
     },
     profileDataContainer: {
-        flex: 2,
         flexDirection: 'column',
+        rowGap: 5,
+        padding: 5,
+        alignSelf: 'flex-start',
     },
     profileDataRow: {
-        flex: 3,
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        columnGap: 5,
+        columnGap: 10,
+        alignItems: 'flex-start',
+        padding: 5
     },
     avatar: {
         width: 140,
         height: 170,
         overflow: 'hidden',
-        tintColor: '#00FF00',
+        alignSelf: 'flex-start'
     },
 
     // Game screens & tasks

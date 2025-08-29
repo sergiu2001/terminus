@@ -1,10 +1,10 @@
-import * as TaskManager from 'expo-task-manager';
 import * as BackgroundTask from 'expo-background-task';
 import * as Notifications from 'expo-notifications';
-import { store, RootState } from './store';
-import { finish } from './sessionSlice';
+import * as TaskManager from 'expo-task-manager';
+import { RootState, store } from '../persistReduxStore';
+import { finish } from './gameSessionSlice';
 
-const TASK = 'SESSION_TICK';
+const TASK = 'background-task';
 
 TaskManager.defineTask(TASK, async () => {
     const { session } = store.getState() as RootState;

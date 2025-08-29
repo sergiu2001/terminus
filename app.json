@@ -18,6 +18,7 @@
       },
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "resize",
+      "googleServicesFile": "google-services.json",
       "package": "com.starpeak.terminus"
     },
     "web": {
@@ -36,7 +37,11 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-background-task"
+      "expo-background-task",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/crashlytics",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
@@ -46,6 +51,12 @@
       "eas": {
         "projectId": "5f7839fe-cdbd-4c3c-9917-f29570293a9b"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/5f7839fe-cdbd-4c3c-9917-f29570293a9b"
     }
   }
 }

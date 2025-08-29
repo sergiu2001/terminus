@@ -1,8 +1,11 @@
+import type { GameSessionSnapshot, IGameSession } from '@/models/GameTypes';
 import { customAlphabet } from 'nanoid/non-secure';
 import { Contract, Difficulty } from './Contract';
-import type { GameSessionSnapshot, IGameSession } from './gameTypes';
 
 const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 10);
+
+const MAX_HISTORY = 50;
+const MAX_LOGS = 100;
 
 export class GameSession implements IGameSession {
     private _snap!: GameSessionSnapshot;
@@ -18,27 +21,44 @@ export class GameSession implements IGameSession {
         return this._contract;
     }
 
-    start(level: Difficulty, durationMs: number) {
+    startGameSession(level: Difficulty, durationMs: number) {
         const now = Date.now();
+        this._contract = new Contract(level, durationMs);
         this._snap = {
             id: nanoid(),
             level,
             startedAt: now,
             endsAt: now + durationMs,
             status: 'active',
+            contract: this._contract.toSnapshot(),
+            logs: ['Game Session started.'],
+            inputHistory: []
         };
-        this._contract = new Contract(level, durationMs);
     }
 
-    hydrate(data: GameSessionSnapshot) {
-        this._snap = data;
-        if (!this._contract) {
-            this._contract = new Contract(data.level, data.endsAt - data.startedAt);
-        }
+    hydrateGameSession(data: GameSessionSnapshot) {
+        this._snap = {
+            ...data,
+            // Ensure logs and inputHistory exist for backwards compatibility
+            logs: data.logs || ['Game Session started.'],
+            inputHistory: data.inputHistory || []
+        };
+        // Restore contract from snapshot instead of creating new one
+        this._contract = Contract.fromSnapshot(data.contract);
     }
 
-    finish(result: 'won' | 'lost' | 'expired') {
-        this._snap = { ...this._snap, status: result };
+    endGameSession(result: 'won' | 'lost' | 'expired') {
+        this._snap = {
+            ...this._snap,
+            status: result,
+            contract: this._contract.toSnapshot() // Update contract snapshot
+        };
+        
+        // Add final log message
+        const finalMessage = result === 'won' ? 'Mission completed successfully!' : 
+                            result === 'lost' ? 'Mission failed.' : 
+                            'Session expired. Game over.';
+        this.addLog(finalMessage);
     }
 
     timeLeft() {
@@ -48,7 +68,10 @@ export class GameSession implements IGameSession {
     validateInput(input: string): boolean {
         const currentTask = this._contract.tasks[this._contract.currentTaskIndex];
         if (currentTask) {
-            return this._contract.validateTask(currentTask, input).isCompletion() === 1;
+            const result = this._contract.validateTask(currentTask, input).isCompletion() === 1;
+            // Update snapshot after validation
+            this._snap = { ...this._snap, contract: this._contract.toSnapshot() };
+            return result;
         }
         return false;
     }
@@ -56,14 +79,36 @@ export class GameSession implements IGameSession {
     advanceTask() {
         if (this._contract.currentTaskIndex < this._contract.tasks.length - 1) {
             this._contract.currentTaskIndex++;
+            // Update snapshot after advancing task
+            this._snap = { ...this._snap, contract: this._contract.toSnapshot() };
             return true;
         }
         return false;
     }
 
     allTasksCompleted(): boolean {
-        return this._contract.currentTaskIndex === this._contract.tasks.length - 1 && 
-               this._contract.isCurentTaskCompleted();
+        return this._contract.currentTaskIndex === this._contract.tasks.length - 1 &&
+            this._contract.isCurentTaskCompleted();
+    }
+
+    addLog(log: string) {
+        const newLogs = [...this._snap.logs, log];
+        // Keep only the most recent logs to prevent memory issues
+        if (newLogs.length > MAX_LOGS) {
+            newLogs.splice(0, newLogs.length - MAX_LOGS);
+        }
+        this._snap = { ...this._snap, logs: newLogs };
+    }
+
+    addToInputHistory(input: string) {
+        if (input.trim() === "") return;
+        
+        const newHistory = [input, ...this._snap.inputHistory];
+        // Keep only the most recent history entries
+        if (newHistory.length > MAX_HISTORY) {
+            newHistory.splice(MAX_HISTORY);
+        }
+        this._snap = { ...this._snap, inputHistory: newHistory };
     }
 
     toJSON() {

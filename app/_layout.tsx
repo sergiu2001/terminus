@@ -1,41 +1,61 @@
+import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { hydrate } from '@/session/game/gameSessionSlice';
+import { persistor, RootState, store } from '@/session/persistReduxStore';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useState } from 'react';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { Provider, useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { persistor, RootState, store } from '@/game/session/store';
 
 SplashScreen.preventAutoHideAsync();
 
 function AppNavigator() {
   const session = useSelector((state: RootState) => state.session.data);
-  const [initialRoute, setInitialRoute] = useState<string | null>(null);
-  
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+  const [hasHydrated, setHasHydrated] = useState(false);
+
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   useEffect(() => {
-    if (loaded) {
-      if (session && session.status === 'active') {
-        setInitialRoute('game');
-      } else {
-        setInitialRoute('index');
-      }
+    if (loaded && !isLoading) {
       SplashScreen.hideAsync();
-    }
-  }, [loaded, session]);
 
-  if (!loaded || !initialRoute) {
+      // Only proceed with game logic if authenticated
+      if (isAuthenticated && session) {
+        console.log('Session data:', session);
+
+        if (!hasHydrated) {
+          store.dispatch(hydrate(session));
+          setHasHydrated(true);
+        }
+
+        if (session.status === 'active') {
+          router.replace('/game');
+        } else {
+          router.replace('/');
+        }
+      } else if (isAuthenticated) {
+        // Authenticated but no game session
+        router.replace('/');
+      } else {
+        // Not authenticated, show auth screen
+        router.replace('/auth');
+      }
+    }
+  }, [loaded, isAuthenticated, isLoading, session?.status, session?.id, hasHydrated]);
+
+  if (!loaded || isLoading) {
     return null;
   }
 
   return (
     <KeyboardProvider>
       <Stack
-        initialRouteName={initialRoute}
         screenOptions={{
           headerShown: false,
           navigationBarHidden: true,
@@ -45,6 +65,7 @@ function AppNavigator() {
       >
         <Stack.Screen name="index" />
         <Stack.Screen name="game" />
+        <Stack.Screen name="auth" />
       </Stack>
     </KeyboardProvider>
   );
@@ -53,8 +74,10 @@ function AppNavigator() {
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <PersistGate persistor={persistor}>
-        <AppNavigator />
+      <PersistGate persistor={persistor} loading={null}>
+        <AuthProvider>
+          <AppNavigator />
+        </AuthProvider>
       </PersistGate>
     </Provider>
   );

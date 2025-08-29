@@ -1,6 +1,7 @@
 // models/Contract.ts
-import { Task } from './Task';
-import { TaskFactory } from './TaskFactory';
+import { ContractSnapshot } from './GameTypes';
+import { Task } from './tasks/Task';
+import { TaskFactory } from './tasks/TaskFactory';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -19,6 +20,27 @@ export class Contract {
         this.difficulty = difficulty;
     }
 
+    // Create contract from snapshot
+    static fromSnapshot(snapshot: ContractSnapshot): Contract {
+        const contract = new Contract(snapshot.difficulty, snapshot.expirationTime);
+        contract.currentTaskIndex = snapshot.currentTaskIndex;
+        contract.createdAt = new Date(snapshot.createdAt);
+        // Restore tasks from snapshot
+        contract.tasks = snapshot.tasks.map(taskSnapshot => Task.fromSnapshot(taskSnapshot));
+        return contract;
+    }
+
+    // Create snapshot for persistence
+    toSnapshot(): ContractSnapshot {
+        return {
+            difficulty: this.difficulty,
+            currentTaskIndex: this.currentTaskIndex,
+            createdAt: this.createdAt.getTime(),
+            expirationTime: this.expirationTime,
+            tasks: this.tasks.map(task => task.toSnapshot())
+        };
+    }
+
     isExpired(): boolean {
         const now = new Date().getTime();
         return now > this.createdAt.getTime() + this.expirationTime;
@@ -27,11 +49,12 @@ export class Contract {
     validateTask(task: Task, input: string): Task {
         if (task.validate(input)) {
             task.markCompleted();
-        }else {
+        } else {
             task.resetCompletion();
         }
         return task;
     }
+
     isCurentTaskCompleted(): boolean {
         return this.tasks[this.currentTaskIndex].isCompletion() === 1;
     }
