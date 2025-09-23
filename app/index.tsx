@@ -7,24 +7,22 @@ import ScreenContainer from '@/components/overlay/ScreenContainer';
 import { useFlickerAnimation } from '@/hooks/animations/useFlickerAnimation';
 import { useScanlineAnimation } from '@/hooks/animations/useScanlineAnimation';
 import { useCommands } from '@/hooks/inputs/command/useCommandHandle';
-import { RootState } from '@/session/persistReduxStore';
-import { clearFinishedSession } from '@/session/game/gameSessionSlice';
+import useSessionStore from '@/session/stores/useSessionStore';
 import React, { useEffect, useState } from 'react';
-import { View, Image, Text } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { Image, Text, View } from 'react-native';
+// using zustand for session state
 
 const Home: React.FC = () => {
-    const session = useSelector((state: RootState) => state.session.data);
+    const session = useSessionStore((s: any) => s.data);
     const scanlineAnim = useScanlineAnimation();
     const flickerAnim = useFlickerAnimation();
-    const dispatch = useDispatch();
 
     // Clear finished sessions when returning to home
     useEffect(() => {
         if (session && session.status !== 'active') {
-            dispatch(clearFinishedSession());
+            useSessionStore.getState().clearFinishedSession();
         }
-    }, [session, dispatch]);
+    }, [session]);
 
     const [logs, setLogs] = useState<string[]>(['Welcome to the TERMINAL.']);
     const [input, setInput] = useState('');

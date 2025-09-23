@@ -1,18 +1,16 @@
 import { AuthProvider, useAuth } from '@/context/AuthContext';
-import { hydrate } from '@/session/game/gameSessionSlice';
-import { persistor, RootState, store } from '@/session/persistReduxStore';
+import useSessionStore from '@/session/stores/useSessionStore';
+import { initSyncForUser } from '@/session/sync';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useState } from 'react';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
-import { Provider, useSelector } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
 
 SplashScreen.preventAutoHideAsync();
 
 function AppNavigator() {
-  const session = useSelector((state: RootState) => state.session.data);
+  const session = useSessionStore((s: any) => s.data);
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const [hasHydrated, setHasHydrated] = useState(false);
@@ -22,19 +20,25 @@ function AppNavigator() {
   });
 
   useEffect(() => {
+    let unsubSync: (() => void) | null = null;
+  const uid = user?.uid ?? null;
+  const sessionStatus = session?.status ?? null;
+
     if (loaded && !isLoading) {
       SplashScreen.hideAsync();
 
+      if (isAuthenticated && uid) {
+        initSyncForUser(uid).then((unsub) => { unsubSync = unsub; }).catch(console.error);
+      }
+
       // Only proceed with game logic if authenticated
       if (isAuthenticated && session) {
-        console.log('Session data:', session);
-
         if (!hasHydrated) {
-          store.dispatch(hydrate(session));
+          useSessionStore.getState().hydrate(session);
           setHasHydrated(true);
         }
 
-        if (session.status === 'active') {
+        if (sessionStatus === 'active') {
           router.replace('/game');
         } else {
           router.replace('/');
@@ -47,7 +51,11 @@ function AppNavigator() {
         router.replace('/auth');
       }
     }
-  }, [loaded, isAuthenticated, isLoading, session?.status, session?.id, hasHydrated]);
+
+    return () => {
+      try { if (typeof unsubSync === 'function') unsubSync(); } catch {}
+    };
+  }, [loaded, isAuthenticated, isLoading, hasHydrated, router, user?.uid, session]);
 
   if (!loaded || isLoading) {
     return null;
@@ -73,12 +81,8 @@ function AppNavigator() {
 
 export default function RootLayout() {
   return (
-    <Provider store={store}>
-      <PersistGate persistor={persistor} loading={null}>
-        <AuthProvider>
-          <AppNavigator />
-        </AuthProvider>
-      </PersistGate>
-    </Provider>
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
   );
 }

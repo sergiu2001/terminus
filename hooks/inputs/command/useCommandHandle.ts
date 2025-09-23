@@ -1,8 +1,7 @@
 import { scheduleBackgroundCheck } from '@/session/game/backgroundTask';
-import { start } from '@/session/game/gameSessionSlice';
+import useSessionStore from '@/session/stores/useSessionStore';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
 
 type CommandContext = 'main' | 'contract-selection';
 
@@ -26,7 +25,7 @@ export const useCommands = (
     history: string[],
     setHistory: (history: string[]) => void
 ) => {
-    const dispatch = useDispatch();
+    // using zustand action helper start directly
     const [commandContext, setCommandContext] = useState<CommandContext>('main');
 
     const handleCommand = useCallback((text: string) => {
@@ -63,7 +62,7 @@ export const useCommands = (
                 
                 if (contract) {
                     newLogs.push(`You have selected ${contract.name}. Difficulty: ${contract.difficulty}`);
-                    dispatch(start({ level: contract.level, duration: contract.duration }));
+                    useSessionStore.getState().start({ level: contract.level, duration: contract.duration });
                     const endTime = Date.now() + contract.duration;
                     scheduleBackgroundCheck(endTime);
                     router.replace('/game');
@@ -76,7 +75,7 @@ export const useCommands = (
 
         setLogs(newLogs);
         setHistory(newHistory);
-    }, [logs, history, commandContext, dispatch, setLogs, setHistory]);
+    }, [logs, history, commandContext, setLogs, setHistory]);
 
     return { handleCommand };
 };

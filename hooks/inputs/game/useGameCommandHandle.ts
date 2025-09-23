@@ -1,7 +1,6 @@
-import { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
-import { finish, updateSession, addMultipleLogs, addToInputHistory } from '@/session/game/gameSessionSlice';
+import useSessionStore from '@/session/stores/useSessionStore';
 import { router } from 'expo-router';
+import { useCallback } from 'react';
 
 export const useGameCommands = (
     session: any,
@@ -10,7 +9,7 @@ export const useGameCommands = (
     isNavigating: boolean,
     setIsNavigating: (value: boolean) => void
 ) => {
-    const dispatch = useDispatch();
+    // using zustand action helpers directly
 
     const handleCommand = useCallback((text: string) => {
         if (!session || isNavigating) return;
@@ -19,18 +18,18 @@ export const useGameCommands = (
         const logsToAdd: string[] = [];
 
         // Add input to history and log it
-        dispatch(addToInputHistory(text));
+    useSessionStore.getState().addToInputHistory(text);
         logsToAdd.push(`>.>*!* ${text}`);
 
         switch (command) {
             case 'win':
-                if (session?.status === 'active') {
-                    dispatch(finish('won'));
+                    if (session?.status === 'active') {
+                    useSessionStore.getState().finish('won');
                 }
                 break;
             case 'lose':
                 if (session?.status === 'active') {
-                    dispatch(finish('lost'));
+                    useSessionStore.getState().finish('lost');
                 }
                 break;
             case 'status':
@@ -59,12 +58,12 @@ export const useGameCommands = (
                         if (isValid) {
                             logsToAdd.push('Task completed successfully!');
                             if (gameSession.allTasksCompleted()) {
-                                dispatch(finish('won'));
+                                useSessionStore.getState().finish('won');
                                 // Don't add log here - finish action will handle it
                             } else {
                                 const advanced = gameSession.advanceTask();
                                 if (advanced) {
-                                    dispatch(updateSession());
+                                    useSessionStore.getState().updateSession();
                                     logsToAdd.push('Moving to next task...');
                                 }
                             }
@@ -78,9 +77,9 @@ export const useGameCommands = (
 
         // Add all logs in a single batch to prevent multiple re-renders
         if (logsToAdd.length > 0) {
-            dispatch(addMultipleLogs(logsToAdd));
+            useSessionStore.getState().addMultipleLogs(logsToAdd);
         }
-    }, [session, gameSession, remaining, isNavigating, dispatch, setIsNavigating]);
+    }, [session, gameSession, remaining, isNavigating, setIsNavigating]);
 
     return { handleCommand };
 };

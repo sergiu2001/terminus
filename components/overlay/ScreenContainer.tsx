@@ -1,5 +1,6 @@
 import { styleCSS } from "@/assets/styles";
-import { Dimensions,SafeAreaView, ScrollView } from "react-native";
+import { Dimensions, ScrollView } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ScreenContainer = ({ children }: { children: React.ReactNode }) => {
 

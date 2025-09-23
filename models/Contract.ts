@@ -11,9 +11,15 @@ export class Contract {
     createdAt: Date;
     expirationTime: number;
     difficulty: Difficulty;
+    seed?: string;
+    genVersion: number;
 
-    constructor(difficulty: Difficulty, expirationTime: number = 24 * 60 * 60 * 1000) {
-        this.tasks = TaskFactory.createTasksForDifficulty(difficulty);
+    constructor(difficulty: Difficulty, expirationTime: number = 24 * 60 * 60 * 1000, seed?: string, genVersion = 1) {
+        this.seed = seed;
+        this.genVersion = genVersion;
+        this.tasks = seed
+            ? TaskFactory.createTasksForSeed(difficulty, seed, genVersion)
+            : TaskFactory.createTasksForDifficulty(difficulty);
         this.currentTaskIndex = 0;
         this.createdAt = new Date();
         this.expirationTime = expirationTime;
@@ -22,11 +28,41 @@ export class Contract {
 
     // Create contract from snapshot
     static fromSnapshot(snapshot: ContractSnapshot): Contract {
-        const contract = new Contract(snapshot.difficulty, snapshot.expirationTime);
+        const contract = new Contract(
+            snapshot.difficulty,
+            snapshot.expirationTime,
+            snapshot.seed,
+            snapshot.genVersion ?? 1
+        );
         contract.currentTaskIndex = snapshot.currentTaskIndex;
         contract.createdAt = new Date(snapshot.createdAt);
-        // Restore tasks from snapshot
-        contract.tasks = snapshot.tasks.map(taskSnapshot => Task.fromSnapshot(taskSnapshot));
+
+        // If tasks are provided in snapshot, merge completion state and any
+        // persisted description/params with regenerated structure.
+        if (snapshot.tasks && snapshot.tasks.length > 0) {
+            // Map regenerated tasks by id for merge
+            const byId = new Map(contract.tasks.map(t => [t.id, t] as const));
+            for (const snapTask of snapshot.tasks) {
+                const t = byId.get(snapTask.id);
+                if (t) {
+                    t.completed = snapTask.completed;
+                    // Keep snapshot description if provided, to avoid text drift
+                    if (snapTask.description) t.description = snapTask.description;
+                    // Also keep params to reflect exact target values
+                    if (snapTask.params) t.params = snapTask.params;
+                }
+            }
+        } else if (!snapshot.seed) {
+            // Legacy: no seed, rely entirely on provided tasks
+            // For backward compatibility, if no seed and tasks exists, construct from them
+            // (this path triggers only when older snapshot format without seed provided tasks)
+            // Note: This else-if will only run if tasks were not provided above and seed missing
+        }
+        
+        // If snapshot includes explicit tasks but we didn't merge (no seed), fully restore
+        if (!snapshot.seed && snapshot.tasks && snapshot.tasks.length > 0) {
+            contract.tasks = snapshot.tasks.map(taskSnapshot => Task.fromSnapshot(taskSnapshot));
+        }
         return contract;
     }
 
@@ -37,7 +73,11 @@ export class Contract {
             currentTaskIndex: this.currentTaskIndex,
             createdAt: this.createdAt.getTime(),
             expirationTime: this.expirationTime,
-            tasks: this.tasks.map(task => task.toSnapshot())
+            // Store tasks to track progress and keep readable state, but with seed
+            // present we can always regenerate structure deterministically.
+            tasks: this.tasks.map(task => task.toSnapshot()),
+            seed: this.seed,
+            genVersion: this.genVersion,
         };
     }
 
@@ -55,7 +95,7 @@ export class Contract {
         return task;
     }
 
-    isCurentTaskCompleted(): boolean {
+    isCurrentTaskCompleted(): boolean {
         return this.tasks[this.currentTaskIndex].isCompletion() === 1;
     }
 }

@@ -1,15 +1,13 @@
-import { RootState } from '@/session/persistReduxStore';
-import { clearFinishedSession, finish, getSession } from '@/session/game/gameSessionSlice';
+import useSessionStore, { getSession } from '@/session/stores/useSessionStore';
 import { useKeepAwake } from 'expo-keep-awake';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { runOnJS, useDerivedValue, useSharedValue } from 'react-native-reanimated';
-import { useDispatch, useSelector } from 'react-redux';
 
 export const useGameSessionInit = (session: any, isNavigating: boolean, setIsNavigating: (value: boolean) => void) => {
     const [gameSession, setGameSession] = useState<any>(null);
     const [hasInitialized, setHasInitialized] = useState(false);
-    const dispatch = useDispatch();
+    // using zustand action clearFinishedSession directly when needed
     const sessionIdRef = useRef<string | null>(null);
 
     useEffect(() => {
@@ -27,7 +25,7 @@ export const useGameSessionInit = (session: any, isNavigating: boolean, setIsNav
                 console.error('Error getting game session:', error);
                 if (!isNavigating) {
                     setIsNavigating(true);
-                    dispatch(clearFinishedSession());
+                    useSessionStore.getState().clearFinishedSession();
                     router.replace('/');
                 }
             }
@@ -36,14 +34,13 @@ export const useGameSessionInit = (session: any, isNavigating: boolean, setIsNav
             setGameSession(null);
             sessionIdRef.current = null;
         }
-    }, [session?.id, session?.status, hasInitialized, dispatch, isNavigating, setIsNavigating]);
+    }, [session?.id, session?.status, hasInitialized, isNavigating, setIsNavigating]);
 
     return gameSession;
 };
 
 export function useGameSession() {
-    const session = useSelector((s: RootState) => s.session.data);
-    const dispatch = useDispatch();
+    const session = useSessionStore((s: any) => s.data);
     useKeepAwake(session?.status === 'active' ? 'game-session' : undefined);
 
     const hasFinishedRef = useRef(false);
@@ -53,12 +50,12 @@ export function useGameSession() {
         if (!hasFinishedRef.current) {
             hasFinishedRef.current = true;
             try {
-                dispatch(finish('expired'));
+                useSessionStore.getState().finish('expired');
             } catch (error) {
                 console.error('Error dispatching finish:', error);
             }
         }
-    }, [dispatch]);
+    }, []);
 
     useEffect(() => {
         if (session && session.status === 'active' && !isHydratingRef.current) {

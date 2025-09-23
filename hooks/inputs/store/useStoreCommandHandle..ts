@@ -1,8 +1,4 @@
-import { scheduleBackgroundCheck } from '@/session/game/backgroundTask';
-import { start } from '@/session/game/gameSessionSlice';
-import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
 
 type CommandContext = 'main' | 'buy-selection';
 
@@ -13,7 +9,7 @@ export const useStoreCommands = (
     history: string[],
     setHistory: (history: string[]) => void
 ) => {
-    const dispatch = useDispatch();
+    // using zustand start directly if needed
     const [commandContext, setCommandContext] = useState<CommandContext>('main');
 
     const handleCommand = useCallback((text: string) => {
@@ -43,7 +39,7 @@ export const useStoreCommands = (
 
         setLogs(newLogs);
         setHistory(newHistory);
-    }, [logs, history, commandContext, dispatch, setLogs, setHistory]);
+    }, [logs, history, commandContext, setLogs, setHistory]);
 
     return { handleCommand };
 };

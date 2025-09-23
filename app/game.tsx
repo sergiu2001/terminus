@@ -8,9 +8,9 @@ import ScreenContainer from '@/components/overlay/ScreenContainer';
 import Timer from '@/components/Timer';
 import { useFlickerAnimation } from '@/hooks/animations/useFlickerAnimation';
 import { useScanlineAnimation } from '@/hooks/animations/useScanlineAnimation';
+import { useGameSession, useGameSessionInit } from '@/hooks/game/useGameSession';
 import { useGameCommands } from '@/hooks/inputs/game/useGameCommandHandle';
 import { useInputHistory } from '@/hooks/inputs/game/useGameCommandHistory';
-import { useGameSession, useGameSessionInit } from '@/hooks/game/useGameSession';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
@@ -19,6 +19,7 @@ const Game: React.FC = () => {
     const scanlineAnim = useScanlineAnimation();
     const flickerAnim = useFlickerAnimation();
     const { session, remaining } = useGameSession();
+    const sessionStatus = session?.status ?? null;
     
     const [input, setInput] = useState('');
     const [isNavigating, setIsNavigating] = useState(false);
@@ -43,7 +44,7 @@ const Game: React.FC = () => {
 
             return () => clearTimeout(timeout);
         }
-    }, [session?.status, session?.id, isNavigating]); // Use session.status instead of checking !== 'active'
+    }, [session, session?.id, sessionStatus, isNavigating]); // stable deps: session and derived sessionStatus
 
     const handleGameCommand = (text: string) => {
         handleCommand(text);

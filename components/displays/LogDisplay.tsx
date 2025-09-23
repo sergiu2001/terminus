@@ -12,9 +12,7 @@ const LogDisplay: React.FC<LogDisplayProps> = ({ logs, style }) => {
     const [currentLogIndex, setCurrentLogIndex] = useState(0);
 
     useEffect(() => {
-        if (currentLogIndex < logs.length - 1) {
-            setCurrentLogIndex(currentLogIndex + 1);
-        }
+        setCurrentLogIndex((current) => (current < logs.length - 1 ? current + 1 : current));
     }, [logs.length]);
 
     const handleComplete = () => {

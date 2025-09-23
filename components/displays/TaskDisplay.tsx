@@ -15,7 +15,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ contract }) => {
                 <View style={styleCSS.taskCard} key={task.id}>
                     <Text
                         style={[
-                            task.completed == 1 ? styleCSS.taskCompletedText : task.completed == 2 ? styleCSS.taskIncompleteText : styleCSS.taskText,
+                            task.completed === 1 ? styleCSS.taskCompletedText : task.completed === 2 ? styleCSS.taskIncompleteText : styleCSS.taskText,
                         ]}
                     >
                         [{index+1}]. {task.description}

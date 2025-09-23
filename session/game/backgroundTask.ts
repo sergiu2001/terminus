@@ -1,17 +1,15 @@
+import useSessionStore from '@/session/stores/useSessionStore';
 import * as BackgroundTask from 'expo-background-task';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
-import { RootState, store } from '../persistReduxStore';
-import { finish } from './gameSessionSlice';
 
 const TASK = 'background-task';
 
 TaskManager.defineTask(TASK, async () => {
-    const { session } = store.getState() as RootState;
-    const snap = session?.data;
+    const snap = useSessionStore.getState().data;
 
     if (snap && Date.now() >= snap.endsAt && snap.status === 'active') {
-        store.dispatch(finish('expired'));
+        useSessionStore.getState().finish('expired');
     }
 
     return BackgroundTask.BackgroundTaskResult.Success;

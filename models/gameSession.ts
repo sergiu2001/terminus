@@ -1,8 +1,7 @@
 import type { GameSessionSnapshot, IGameSession } from '@/models/GameTypes';
-import { customAlphabet } from 'nanoid/non-secure';
+import { nanoid } from 'nanoid';
 import { Contract, Difficulty } from './Contract';
 
-const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 10);
 
 const MAX_HISTORY = 50;
 const MAX_LOGS = 100;
@@ -23,7 +22,9 @@ export class GameSession implements IGameSession {
 
     startGameSession(level: Difficulty, durationMs: number) {
         const now = Date.now();
-        this._contract = new Contract(level, durationMs);
+        // Generate a reproducible seed per session/contract
+        const seed = nanoid();
+        this._contract = new Contract(level, durationMs, seed);
         this._snap = {
             id: nanoid(),
             level,
@@ -88,7 +89,7 @@ export class GameSession implements IGameSession {
 
     allTasksCompleted(): boolean {
         return this._contract.currentTaskIndex === this._contract.tasks.length - 1 &&
-            this._contract.isCurentTaskCompleted();
+            this._contract.isCurrentTaskCompleted();
     }
 
     addLog(log: string) {
@@ -112,6 +113,6 @@ export class GameSession implements IGameSession {
     }
 
     toJSON() {
-        return this._snap;
+    return { ...this._snap, updatedAt: Date.now() };
     }
 }
