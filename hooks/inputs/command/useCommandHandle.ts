@@ -55,11 +55,22 @@ export const useCommands = (
                     if (!p) {
                         newLogs.push('No profile found.');
                     } else {
-                        newLogs.push(`AGENT PROFILE`);
-                        newLogs.push(`  id: ${p.id}`);
-                        newLogs.push(`  username: ${p.username}`);
-                        newLogs.push(`  money: ${p.money}`);
-                        newLogs.push(`  tokens: ${p.tokens}`);
+                        newLogs.push('═══════════════════════════════════');
+                        newLogs.push('        AGENT PROFILE');
+                        newLogs.push('═══════════════════════════════════');
+                        newLogs.push(`ID:        ${p.id}`);
+                        newLogs.push(`Username:  ${p.username}`);
+                        newLogs.push(`Level:     ${p.stats?.level ?? 1}`);
+                        newLogs.push(`XP:        ${p.stats?.xp ?? 0}/${p.stats?.xpToNextLevel ?? 100}`);
+                        newLogs.push('───────────────────────────────────');
+                        newLogs.push(`Money:     $${p.money}`);
+                        newLogs.push(`Tokens:    ${p.tokens}`);
+                        newLogs.push('───────────────────────────────────');
+                        newLogs.push(`Completed: ${p.stats?.contractsCompleted ?? 0}`);
+                        newLogs.push(`Failed:    ${p.stats?.contractsFailed ?? 0}`);
+                        newLogs.push(`Win Rate:  ${p.getWinRate?.() ?? 0}%`);
+                        newLogs.push(`Earnings:  $${p.stats?.totalEarnings ?? 0}`);
+                        newLogs.push('═══════════════════════════════════');
                     }
                     break;
                 }

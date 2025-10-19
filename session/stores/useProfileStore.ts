@@ -16,10 +16,18 @@ const useProfileStore = create<ProfileState>()(
     persist(
     (set, get) => ({
       profile: null,
-      // local setter: bump updatedAt
+      // local setter: bump updatedAt and version
       setProfile: (p: Profile) => {
         const currentVersion = get().profile?.version ?? p.version ?? 0;
-        const updated = new Profile(p.id, p.username, p.money, p.tokens, Date.now(), currentVersion + 1);
+        const updated = new Profile(
+          p.id, 
+          p.username, 
+          p.money, 
+          p.tokens, 
+          Date.now(), 
+          currentVersion + 1,
+          p.stats
+        );
         set({ profile: updated });
       },
       // remote setter: trust provided updatedAt

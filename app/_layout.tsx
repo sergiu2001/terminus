@@ -19,7 +19,6 @@ function AppNavigator() {
   });
 
   useEffect(() => {
-    const uid = user?.uid ?? null;
     const sessionStatus = session?.status ?? null;
 
     if (loaded && !isLoading) {

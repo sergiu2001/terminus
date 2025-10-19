@@ -5,5 +5,16 @@
     "source.sortMembers": "explicit"
   },
   "java.compile.nullAnalysis.mode": "automatic",
-  "java.configuration.updateBuildConfiguration": "automatic"
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "files.exclude": {
+    "**/node_modules/**/build.gradle.kts": true,
+    "**/node_modules/**/.settings": true,
+    "**/node_modules/**/android": false
+  },
+  "java.import.gradle.exclude": [
+    "**/node_modules/**"
+  ],
+  "gradle.nestedProjects": false,
+  "java.project.sourcePaths": [],
+  "java.import.gradle.enabled": false
 }

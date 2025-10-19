@@ -1,0 +1,15 @@
+{
+	"servers": {
+		"terminus-project-server": {
+			"type": "stdio",
+			"command": "node",
+			"args": [
+				"${workspaceFolder}/mcp-server/index.js"
+			],
+			"env": {
+				"PROJECT_ROOT": "${workspaceFolder}",
+				"NODE_ENV": "development"
+			}
+		}
+	}
+}

@@ -76,6 +76,38 @@ const useSessionStore = create<SessionState>()(
                     if (inst) {
                         inst.endGameSession(status);
                         get()._persistInstance?.();
+                        
+                        // Award rewards if player won
+                        if (status === 'won') {
+                            // Dynamic import to avoid circular dependency
+                            import('@/services/profileService').then(({ calculateReward, awardReward, getCurrentProfile }) => {
+                                const profile = getCurrentProfile();
+                                if (profile) {
+                                    const snap = inst.snapshot;
+                                    const completionTime = Date.now() - snap.startedAt;
+                                    const maxTime = snap.endsAt - snap.startedAt;
+                                    const reward = calculateReward(snap.level, completionTime, maxTime);
+                                    awardReward(reward);
+                                    
+                                    // Update contract stats
+                                    const updatedProfile = profile.withContractCompleted(reward.xp);
+                                    import('@/session/stores/useProfileStore').then(({ default: useProfileStore }) => {
+                                        useProfileStore.getState().setProfile(updatedProfile);
+                                    });
+                                }
+                            }).catch(console.error);
+                        } else if (status === 'lost') {
+                            // Track failed contract
+                            import('@/services/profileService').then(({ getCurrentProfile }) => {
+                                const profile = getCurrentProfile();
+                                if (profile) {
+                                    const updatedProfile = profile.withContractFailed();
+                                    import('@/session/stores/useProfileStore').then(({ default: useProfileStore }) => {
+                                        useProfileStore.getState().setProfile(updatedProfile);
+                                    });
+                                }
+                            }).catch(console.error);
+                        }
                     } else {
                         // update snapshot status if no instance
                         const s = get().data as GameSessionSnapshot | null;

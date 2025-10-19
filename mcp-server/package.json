@@ -1,0 +1,13 @@
+{
+  "name": "terminus-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for the Terminus game project",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  }
+}
