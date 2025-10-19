@@ -1,5 +1,6 @@
 import { auth } from '@/firebaseConfig';
 import useProfileStore from '@/session/stores/useProfileStore';
+import useSessionStore from '@/session/stores/useSessionStore';
 import { initSyncForUser } from '@/session/sync';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
@@ -47,8 +48,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             })
                             .catch((e) => console.warn('initSyncForUser error', e));
                     } else {
-                        // user signed out: optionally clear local profile
-                        useProfileStore.getState().clearProfile();
+                        // user signed out: clear local state and stop sync
+                        try {
+                            useProfileStore.getState().clearProfile();
+                        } catch (e) {
+                            console.warn('Failed to clear profile store on sign out', e);
+                        }
+                        try {
+                            useSessionStore.getState().clearSession();
+                        } catch (e) {
+                            console.warn('Failed to clear session store on sign out', e);
+                        }
                     }
                 } catch (e) {
                     console.warn('Auth sync management error', e);

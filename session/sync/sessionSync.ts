@@ -1,3 +1,8 @@
+// Session sync policy:
+// - Write to Firestore ONLY when a session starts (status becomes 'active') or
+//   when status changes (e.g., to 'won' | 'lost' | 'expired').
+// - Use server timestamps (`sessionUpdatedAt`) and remote-newer checks to avoid
+//   write loops and prefer authoritative data.
 import { db } from '@/firebaseConfig';
 import useSessionStore, { SessionState } from '@/session/stores/useSessionStore';
 import { doc, getDoc, onSnapshot, serverTimestamp, setDoc, Timestamp } from 'firebase/firestore';

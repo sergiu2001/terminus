@@ -2,6 +2,14 @@ import { Difficulty } from '../Contract';
 import { Task } from './Task';
 import { TaskDefinitions } from './TaskDefinitions';
 
+/**
+ * TaskFactory
+ * - Provides two ways to create tasks:
+ *   1) createTasksForSeed: deterministic using (difficulty, seed, genVersion)
+ *   2) createTasksForDifficulty: non-deterministic using Math.random
+ * - The deterministic path uses Mulberry32 PRNG seeded via a djb2-like hash.
+ */
+
 // Simple deterministic PRNG (Mulberry32) for reproducible randomness from a seed
 // Source: Public domain implementation
 function mulberry32(seed: number) {
@@ -32,7 +40,7 @@ export class TaskFactory {
         const intermediateTasks = TaskDefinitions.getDefinitionsForCategory('intermediate');
         const advancedTasks = TaskDefinitions.getDefinitionsForCategory('advanced');
 
-        // Helpers using deterministic rand
+    // Helpers using deterministic rand
         const pick = <T,>(arr: T[]): T => arr[Math.floor(rand() * arr.length) % arr.length];
         const shuffle = <T,>(arr: T[]): T[] => {
             const a = arr.slice();

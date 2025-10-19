@@ -1,4 +1,6 @@
+import { AuthService } from '@/services/authService';
 import { scheduleBackgroundCheck } from '@/session/game/backgroundTask';
+import useProfileStore from '@/session/stores/useProfileStore';
 import useSessionStore from '@/session/stores/useSessionStore';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -37,7 +39,7 @@ export const useCommands = (
             switch (command) {
                 case 'help':
                     newLogs.push('This is the list of available commands*!*');
-                    newLogs.push('\t'.repeat(3) + '~ SCAN\n' + '\t'.repeat(3) + '~ PROFILE\n' + '\t'.repeat(3) + '~ SYS\n' + '\t'.repeat(3) + '~ LOGOUT\n' + '\t'.repeat(3) + '~ CLC\n' + '\t'.repeat(3) + '~ EXIT');
+                    newLogs.push('\t'.repeat(3) + '~ SCAN\n' + '\t'.repeat(3) + '~ PROFILE\n' + '\t'.repeat(3) + '~ LOGOUT\n' + '\t'.repeat(3) + '~ CLC\n' + '\t'.repeat(3) + '~ EXIT');
                     break;
                 case 'scan':
                     setCommandContext('contract-selection');
@@ -47,6 +49,29 @@ export const useCommands = (
                         newLogs.push(`${index + 1}. ${contract.name} - Difficulty: ${contract.difficulty}`);
                     });
                     newLogs.push('Enter contract number to select, or "back" to return...');
+                    break;
+                case 'profile': {
+                    const p = useProfileStore.getState().profile;
+                    if (!p) {
+                        newLogs.push('No profile found.');
+                    } else {
+                        newLogs.push(`AGENT PROFILE`);
+                        newLogs.push(`  id: ${p.id}`);
+                        newLogs.push(`  username: ${p.username}`);
+                        newLogs.push(`  money: ${p.money}`);
+                        newLogs.push(`  tokens: ${p.tokens}`);
+                    }
+                    break;
+                }
+                case 'logout':
+                    newLogs.push('Signing out...');
+                    AuthService.signOut().catch((e) => newLogs.push(`Logout error: ${e?.message || 'Unknown error'}`));
+                    router.replace('/auth');
+                    break;
+                case 'clc':
+                    // clear console
+                    newLogs = [];
+                    newHistory = [];
                     break;
                 default:
                     newLogs.push(`Unknown command ${text}. Use help to see all available commands.`);

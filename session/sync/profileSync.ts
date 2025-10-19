@@ -35,7 +35,9 @@ export type ProfileSyncOptions = {
 export async function initProfileSync(uid: string, opts?: ProfileSyncOptions) {
   const ref = doc(db, COLLECTION, uid);
   let applyingRemote = false;
+  // Track both server-applied updatedAt and a logical version to avoid clock skew
   let lastRemoteAppliedAt: number | undefined;
+  let lastRemoteVersion: number = 0;
 
   // hydrate once from server if exists
   try {
@@ -47,13 +49,16 @@ export async function initProfileSync(uid: string, opts?: ProfileSyncOptions) {
         const ts = (data.profileUpdatedAt || data.updatedAt) as Timestamp | number | undefined;
         const remoteUpdated = ts instanceof Timestamp ? ts.toMillis() : typeof ts === 'number' ? ts : undefined;
         const local = useProfileStore.getState().profile as Profile | null;
-        const localUpdated = local?.updatedAt;
-        if (!localUpdated || (remoteUpdated && remoteUpdated > localUpdated)) {
-          const incoming = Profile.fromObject({ ...p, updatedAt: remoteUpdated ?? p.updatedAt });
+        const localVersion = local?.version ?? 0;
+        const remoteVersion = typeof p.version === 'number' ? p.version : 0;
+        const shouldApply = remoteVersion > localVersion || (!!remoteUpdated && (!local?.updatedAt || remoteUpdated > (local?.updatedAt ?? 0)));
+        if (shouldApply) {
+          const incoming = Profile.fromObject({ ...p, updatedAt: remoteUpdated ?? p.updatedAt, version: remoteVersion });
           applyingRemote = true;
           useProfileStore.getState().setProfileFromRemote(incoming);
           applyingRemote = false;
           lastRemoteAppliedAt = incoming.updatedAt;
+          lastRemoteVersion = incoming.version ?? 0;
         }
       }
     }
@@ -64,7 +69,7 @@ export async function initProfileSync(uid: string, opts?: ProfileSyncOptions) {
       const username = opts?.profileDefaults?.username ?? `user_${uid.substring(0, 6)}`;
       const money = opts?.profileDefaults?.money ?? 0;
       const tokens = opts?.profileDefaults?.tokens ?? 0;
-      const fallback = new Profile(uid, username, money, tokens, Date.now());
+      const fallback = new Profile(uid, username, money, tokens, Date.now(), (lastRemoteVersion || 0) + 1);
       useProfileStore.getState().setProfile(fallback);
       // ensure Firestore doc gets created on first run
       try {
@@ -86,13 +91,16 @@ export async function initProfileSync(uid: string, opts?: ProfileSyncOptions) {
       const ts = (data.profileUpdatedAt || data.updatedAt) as Timestamp | number | undefined;
       const remoteUpdated = ts instanceof Timestamp ? ts.toMillis() : typeof ts === 'number' ? ts : undefined;
       const local = useProfileStore.getState().profile as Profile | null;
-      const localUpdated = local?.updatedAt;
-      if (!localUpdated || (remoteUpdated && remoteUpdated > localUpdated)) {
-        const incoming = Profile.fromObject({ ...p, updatedAt: remoteUpdated ?? p.updatedAt });
+      const localVersion = local?.version ?? 0;
+      const remoteVersion = typeof p.version === 'number' ? p.version : 0;
+      const shouldApply = remoteVersion > localVersion || (!!remoteUpdated && (!local?.updatedAt || remoteUpdated > (local?.updatedAt ?? 0)));
+      if (shouldApply) {
+        const incoming = Profile.fromObject({ ...p, updatedAt: remoteUpdated ?? p.updatedAt, version: remoteVersion });
         applyingRemote = true;
         useProfileStore.getState().setProfileFromRemote(incoming);
         applyingRemote = false;
         lastRemoteAppliedAt = incoming.updatedAt;
+        lastRemoteVersion = incoming.version ?? 0;
       }
     }
   }, (err) => console.error('Profile snapshot error', err));
@@ -104,9 +112,10 @@ export async function initProfileSync(uid: string, opts?: ProfileSyncOptions) {
       if (!profile) return;
       // debounce writes to avoid echo
       if (applyingRemote) return;
-      // Only push if local profile is strictly newer than last remote applied
-      if (lastRemoteAppliedAt && profile.updatedAt && profile.updatedAt <= lastRemoteAppliedAt) {
-        return;
+      // Bump version locally if needed and if not ahead of remote
+      if ((profile.version ?? 0) <= lastRemoteVersion) {
+        const next = new Profile(profile.id, profile.username, profile.money, profile.tokens, Date.now(), lastRemoteVersion + 1);
+        useProfileStore.getState().setProfileFromRemote(next);
       }
       if (writeTimeout) clearTimeout(writeTimeout);
       writeTimeout = setTimeout(() => {

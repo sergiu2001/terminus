@@ -80,7 +80,7 @@ export const useAuthCommands = () => {
                     newLogs.push('Creating account...');
                     setLogs([...newLogs]); // Update logs before async operation
 
-                    await AuthService.signUpWithEmail(email, password);
+                    await AuthService.signUpWithEmail(email, password, text);
 
                     newLogs.push('Account created successfully! Welcome to Terminus.');
                     setLogs([...newLogs]);

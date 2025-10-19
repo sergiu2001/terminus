@@ -7,6 +7,7 @@ import ScreenContainer from '@/components/overlay/ScreenContainer';
 import { useFlickerAnimation } from '@/hooks/animations/useFlickerAnimation';
 import { useScanlineAnimation } from '@/hooks/animations/useScanlineAnimation';
 import { useCommands } from '@/hooks/inputs/command/useCommandHandle';
+import useProfileStore from '@/session/stores/useProfileStore';
 import useSessionStore from '@/session/stores/useSessionStore';
 import React, { useEffect, useState } from 'react';
 import { Image, Text, View } from 'react-native';
@@ -16,6 +17,7 @@ const Home: React.FC = () => {
     const session = useSessionStore((s: any) => s.data);
     const scanlineAnim = useScanlineAnimation();
     const flickerAnim = useFlickerAnimation();
+    const profile = useProfileStore((s: any) => s.profile);
 
     // Clear finished sessions when returning to home
     useEffect(() => {
@@ -50,9 +52,9 @@ const Home: React.FC = () => {
                             />
                             <View style={styleCSS.profileDataContainer}>
                                 <Text style={styleCSS.specialText}>AGENT PROFILE</Text>
-                                <Text style={styleCSS.specialText}>id: <Text style={styleCSS.logText}>username</Text></Text>
-                                <Text style={styleCSS.specialText}>money: <Text style={styleCSS.logText}>117</Text></Text>
-                                <Text style={styleCSS.specialText}>tokens: <Text style={styleCSS.logText}>3</Text></Text>
+                                <Text style={styleCSS.specialText}>id: <Text style={styleCSS.logText}>{profile?.username ?? 'anonymous'}</Text></Text>
+                                <Text style={styleCSS.specialText}>money: <Text style={styleCSS.logText}>{profile?.money ?? 0}</Text></Text>
+                                <Text style={styleCSS.specialText}>tokens: <Text style={styleCSS.logText}>{profile?.tokens ?? 0}</Text></Text>
                             </View>
                         </View>
                     </View>

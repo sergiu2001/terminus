@@ -5,6 +5,14 @@ import { TaskFactory } from './tasks/TaskFactory';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
+/**
+ * Contract
+ * - A sequence of Tasks generated for a given difficulty.
+ * - When `seed` is present, tasks (their order and parameters) are generated
+ *   deterministically so the contract can be recreated later (with `genVersion`).
+ * - When hydrating from a snapshot, we merge completion state (and stable
+ *   description/params) onto regenerated tasks to preserve progress.
+ */
 export class Contract {
     tasks: Task[];
     currentTaskIndex: number;
@@ -26,7 +34,7 @@ export class Contract {
         this.difficulty = difficulty;
     }
 
-    // Create contract from snapshot
+    /** Create a Contract from a snapshot, regenerating from seed if present. */
     static fromSnapshot(snapshot: ContractSnapshot): Contract {
         const contract = new Contract(
             snapshot.difficulty,
@@ -37,8 +45,8 @@ export class Contract {
         contract.currentTaskIndex = snapshot.currentTaskIndex;
         contract.createdAt = new Date(snapshot.createdAt);
 
-        // If tasks are provided in snapshot, merge completion state and any
-        // persisted description/params with regenerated structure.
+    // If tasks are provided in snapshot, merge completion state and any
+    // persisted description/params with regenerated structure.
         if (snapshot.tasks && snapshot.tasks.length > 0) {
             // Map regenerated tasks by id for merge
             const byId = new Map(contract.tasks.map(t => [t.id, t] as const));
@@ -66,7 +74,7 @@ export class Contract {
         return contract;
     }
 
-    // Create snapshot for persistence
+    /** Create a snapshot for persistence. */
     toSnapshot(): ContractSnapshot {
         return {
             difficulty: this.difficulty,

@@ -1,6 +1,5 @@
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import useSessionStore from '@/session/stores/useSessionStore';
-import { initSyncForUser } from '@/session/sync';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -20,16 +19,11 @@ function AppNavigator() {
   });
 
   useEffect(() => {
-    let unsubSync: (() => void) | null = null;
-  const uid = user?.uid ?? null;
-  const sessionStatus = session?.status ?? null;
+    const uid = user?.uid ?? null;
+    const sessionStatus = session?.status ?? null;
 
     if (loaded && !isLoading) {
       SplashScreen.hideAsync();
-
-      if (isAuthenticated && uid) {
-        initSyncForUser(uid).then((unsub) => { unsubSync = unsub; }).catch(console.error);
-      }
 
       // Only proceed with game logic if authenticated
       if (isAuthenticated && session) {
@@ -51,10 +45,6 @@ function AppNavigator() {
         router.replace('/auth');
       }
     }
-
-    return () => {
-      try { if (typeof unsubSync === 'function') unsubSync(); } catch {}
-    };
   }, [loaded, isAuthenticated, isLoading, hasHydrated, router, user?.uid, session]);
 
   if (!loaded || isLoading) {

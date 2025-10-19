@@ -1,4 +1,8 @@
 // TaskRules.ts - Centralized rule definitions
+// Notes:
+// - `regex` fields are optional and intended for display/hint purposes only.
+//   Validation always uses the `validate` function; consumers should not parse
+//   `regex` unless they explicitly handle it as a plain string.
 export interface TaskRule {
     id: string;
     validate: (input: string, params?: Record<string, any>) => boolean;

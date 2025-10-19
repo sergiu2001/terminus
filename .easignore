@@ -40,4 +40,4 @@ yarn-error.*
 
 app-example
 
-!android/app/goodle-services.json
+!android/app/google-services.json

@@ -18,6 +18,7 @@ export interface SessionState {
     addToInputHistory: (text: string) => void;
     updateSession: () => void;
     clearFinishedSession: () => void;
+    clearSession: () => void;
     // internal helpers (not persisted)
     _ensureInstance?: () => GameSession | null;
     _persistInstance?: () => void;
@@ -138,6 +139,10 @@ const useSessionStore = create<SessionState>()(
                     sessionInstance = null;
                     set({ data: null });
                 }
+            },
+            clearSession: () => {
+                sessionInstance = null;
+                set({ data: null });
             },
         }),
         {

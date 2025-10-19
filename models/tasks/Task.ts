@@ -2,6 +2,14 @@ import { TaskSnapshot } from "../GameTypes";
 import { TaskDefinition } from "./TaskDefinitions";
 import { TaskRules } from "./TaskRules";
 
+/**
+ * Task
+ * - Represents a single rule-based step in a contract.
+ * - `completed` uses numeric states for persistence/back-compat:
+ *   0 = pending, 1 = completed, 2 = failed (attempted but invalid)
+ * - `descriptionTemplate` is interpolated with `params` to produce `description`.
+ */
+
 export class Task {
     id: string;
     ruleId: string;
@@ -11,6 +19,7 @@ export class Task {
     completed: number;
     params: Record<string, any>;
 
+    /** Create a task from a definition plus optional param overrides. */
     constructor(definition: TaskDefinition, params: Record<string, any> = {}) {
         this.id = definition.id;
         this.ruleId = definition.ruleId;
@@ -23,6 +32,7 @@ export class Task {
         this.regex = rule?.regex || '';
     }
 
+    /** Recreate a task from a serializable snapshot. */
     static fromSnapshot(snapshot: TaskSnapshot): Task {
         const definition: TaskDefinition = {
             id: snapshot.id,
@@ -37,6 +47,7 @@ export class Task {
         return task;
     }
 
+    /** Convert to a serializable snapshot for persistence. */
     toSnapshot(): TaskSnapshot {
         return {
             id: this.id,
@@ -49,27 +60,25 @@ export class Task {
         };
     }
 
+    /** Replace {key} placeholders in the template with param values. */
     private interpolateDescription(template: string, params: Record<string, any>): string {
         return template.replace(/{(\w+)}/g, (_, key) => String(params[key] || ''));
     }
 
+    /** Validate `input` using the rule referenced by `ruleId` and `params`. */
     validate(input: string): boolean {
         return TaskRules.validate(this.ruleId, input, this.params);
     }
 
-    isCompletion(): number {
-        return this.completed;
-    }
+    /** Numeric completion getter retained for existing code. */
+    isCompletion(): number { return this.completed; }
 
-    markCompleted(): void {
-        this.completed = 1;
-    }
+    /** Mark this task as successfully completed. */
+    markCompleted(): void { this.completed = 1; }
 
-    resetCompletion(): void {
-        this.completed = 2;
-    }
+    /** Mark this task as failed (attempted but invalid). */
+    resetCompletion(): void { this.completed = 2; }
 
-    getRule(): string {
-        return this.regex || '';
-    }
+    /** Return the regex string (if provided) as a display hint only. */
+    getRule(): string { return this.regex || ''; }
 }

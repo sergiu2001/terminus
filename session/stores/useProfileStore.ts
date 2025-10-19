@@ -14,11 +14,12 @@ export interface ProfileState {
 const useProfileStore = create<ProfileState>()(
   subscribeWithSelector(
     persist(
-    (set) => ({
+    (set, get) => ({
       profile: null,
       // local setter: bump updatedAt
       setProfile: (p: Profile) => {
-        const updated = new Profile(p.id, p.username, p.money, p.tokens, Date.now());
+        const currentVersion = get().profile?.version ?? p.version ?? 0;
+        const updated = new Profile(p.id, p.username, p.money, p.tokens, Date.now(), currentVersion + 1);
         set({ profile: updated });
       },
       // remote setter: trust provided updatedAt
